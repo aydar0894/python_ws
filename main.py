@@ -10,6 +10,7 @@ from pprint import pprint
 from enum import Enum
 import copy
 from collections import deque
+import time
 
 
 class MultiplierCorellationCalculator:
@@ -19,9 +20,9 @@ class MultiplierCorellationCalculator:
     FREQUENCY_LIST = RequestFrequency.__members__.items()
     
     def __init__(self,
-                 start_time, 
-                 end_time,
-                 currencies_list, 
+                 start_time,
+                 currencies_list,
+                 end_time=datetime.now(),
                  return_frequency='daily'):
         self.start_time       = start_time
         self.end_time         = end_time
@@ -31,6 +32,7 @@ class MultiplierCorellationCalculator:
     
     def calculate_aggregated_pairs(self):
         currencies_list  = deque(self.currencies_list)
+        self._fix_currencies_time_bounds()
         pairs_multiplier_correlation = {}
         while len(currencies_list) > 1:
             benchmark_currency  = currencies_list.popleft()
@@ -38,9 +40,38 @@ class MultiplierCorellationCalculator:
                 pair_tag =  "%s/%s" % (benchmark_currency, coin_currency)
                 multiplier, correlation = self.calculation_for_pair(benchmark_currency, coin_currency)
                 pairs_multiplier_correlation[pair_tag] = { 'multiplier': multiplier, 
-                                                          'correlation': correlation }
+                                                           'correlation': correlation }
         return pairs_multiplier_correlation
-        
+
+
+    def _fix_currencies_time_bounds(self):
+        minln, maxln = self._return_time_bounds()
+        pprint("Start time " + str(minln))
+        pprint("End time " + str(maxln))
+        self.start_time = max(datetime.fromtimestamp(minln), self.start_time)
+        self.end_time   = min(datetime.fromtimestamp(maxln), self.end_time)
+        if self.return_frequency == 'daily':
+            self.start_time = self.start_time.replace(hour=0,minute=0,second=0)
+            self.end_time   = self.end_time.replace(hour=0,minute=0,second=0)
+    
+    
+    def _return_time_bounds(self):
+        db = self._mongo_connect('darqube_db')
+        collection_data = db.currencies_collection
+        minln = 0
+        maxln = time.time()
+        for data in collection_data.find({ 'Ccy': { '$in' : self.currencies_list } }):
+            try:
+                hist = data["history"]    
+                history = list(map(lambda x: x['time'], hist))
+                if min(history) > minln:
+                    minln = min(history)
+                if max(history) < maxln:
+                    maxln = max(history)
+            except:
+                next
+        return (minln, maxln)
+
         
     def calculation_for_pair(self, benchmark_ccy, coin_ccy):
         # --- read coin ---
@@ -76,7 +107,7 @@ class MultiplierCorellationCalculator:
         df_benchmark = self._retrieve_currency_history(benchmark_ccy)
         df_coin = self._retrieve_currency_history(coin_ccy)
 
-        arr_PnL_benchmark = np.array([])
+        arr_PnL_benchmark  = np.array([])
         arr_PnL_coin       = np.array([])
         
         while (dt_currentTime <= self.end_time):
@@ -97,10 +128,6 @@ class MultiplierCorellationCalculator:
 
     def _calculate_PnL(self, arr_PnL, df_data, dt_currentTime, dt_previousTime):
         # calculate return of strategy in period [t-1, t] (based on equity, i.e. MtM value of positions)
-        pprint(df_data.loc[dt_currentTime]['close'])
-        pprint(type(df_data.loc[dt_currentTime]['close']))
-        pprint(df_data.loc[dt_previousTime]['close'])
-        pprint(type(df_data.loc[dt_previousTime]['close']))
         PnL = df_data.loc[dt_currentTime]['close'] / df_data.loc[dt_previousTime]['close'] -1.0
         arr_PnL = np.append(arr_PnL, PnL)
         return arr_PnL
@@ -116,9 +143,12 @@ class MultiplierCorellationCalculator:
 
     # --- connect and preprocess utilities for mongo collection --- 
     def _reconstruct_currency_date(self, cur):
+        frmt = "{:%Y-%m-%d}"
+        if self.return_frequency == 'hourly':
+            frmt = "{:%Y-%m-%d} %H:%M:%S"
         for cur_value, index in zip(cur['history'], range(len(cur['history']))):
             #  cur['history'][index]['date'] = datetime.fromtimestamp(cur_value['time'])
-            cur['history'][index]['date'] = "{:%Y-%m-%d} 00:00:00".format(datetime.fromtimestamp(cur_value['time']))
+            cur['history'][index]['date'] = frmt.format(datetime.fromtimestamp(cur_value['time']))
         return cur
 
     
@@ -145,7 +175,10 @@ class MultiplierCorellationCalculator:
         # this makes indexing via date faster
         df_data = df_data.set_index(['date'])         # index: string
         df_data.index = pd.to_datetime(df_data.index)
+        pprint(df_data)
         return df_data
+
+
 
 
 
@@ -154,14 +187,14 @@ app = Flask(__name__)
 @app.route('/', methods=['POST'])
 def index():
     # pprint(request.form)
-    frmt = "%Y-%m-%d"
+    frmt = "%Y-%m-%d %H:%M:%S"
     start_time = datetime.strptime(request.form['start_time'], frmt)
     end_time   = datetime.strptime(request.form['end_time'], frmt)
     currencies_list  = request.form['currencies_list'].split(',')
     return_frequency = request.form['return_frequency']
     # pprint(currencies_list)
     if not return_frequency:
-        return_frequency = 'daily' 
+        return_frequency = 'daily'
     data = MultiplierCorellationCalculator(start_time=start_time,
                                     end_time=end_time,
                                     currencies_list=currencies_list,
