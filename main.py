@@ -48,8 +48,8 @@ class MultiplierCorellationCalculator:
 
     def _fix_currencies_time_bounds(self):
         minln, maxln = self._return_time_bounds()
-        pprint("Start time " + str(minln))
-        pprint("End time " + str(maxln))
+        # pprint("Start time " + str(minln))
+        # pprint("End time " + str(maxln))
         self.start_time = max(datetime.fromtimestamp(minln), datetime.fromtimestamp(self.start_time))
         self.end_time   = min(datetime.fromtimestamp(maxln), datetime.fromtimestamp(self.end_time))
         if self.return_frequency == 'daily':
@@ -122,7 +122,7 @@ class MultiplierCorellationCalculator:
         arr_PnL_benchmark  = np.array([])
         arr_PnL_coin       = np.array([])
         # pprint(df_benchmark)
-        pprint("Current time %s" % (dt_currentTime,))
+        # pprint("Current time %s" % (dt_currentTime,))
         while (dt_currentTime <= self.end_time):
             # calculate return of benchmark in period [t-1, t]
             arr_PnL_benchmark = self._calculate_PnL(arr_PnL_benchmark,
@@ -133,6 +133,7 @@ class MultiplierCorellationCalculator:
                                                 df_coin,
                                                 dt_currentTime,
                                                 dt_previousTime)
+
             # move to next timepoint
             dt_previousTime, dt_currentTime = self._increment_interval(dt_previousTime,
                                                                        dt_currentTime)
@@ -142,6 +143,7 @@ class MultiplierCorellationCalculator:
     def _calculate_PnL(self, arr_PnL, df_data, dt_currentTime, dt_previousTime):
         # calculate return of strategy in period [t-1, t] (based on equity, i.e. MtM value of positions)
         PnL = df_data.loc[dt_currentTime]['close'] / df_data.loc[dt_previousTime]['close'] -1.0
+        pprint(PnL)
         arr_PnL = np.append(arr_PnL, PnL)
         return arr_PnL
 
