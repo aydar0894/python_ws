@@ -143,7 +143,7 @@ class MultiplierCorellationCalculator:
 
     def _calculate_PnL(self, arr_PnL, df_data, dt_currentTime, dt_previousTime):
         # calculate return of strategy in period [t-1, t] (based on equity, i.e. MtM value of positions)
-        PnL = df_data.loc[dt_currentTime]['close'] / df_data.loc[dt_previousTime]['close'] -1.0
+        PnL = df_data.loc[dt_currentTime]['close'][1] / df_data.loc[dt_previousTime]['close'][1] -1.0
         pprint(PnL)
         arr_PnL = np.append(arr_PnL, PnL)
         return arr_PnL
