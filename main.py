@@ -137,6 +137,7 @@ class MultiplierCorellationCalculator:
             # move to next timepoint
             dt_previousTime, dt_currentTime = self._increment_interval(dt_previousTime,
                                                                        dt_currentTime)
+            pprint("Current time %s  Previous time %s" % (dt_currentTime,dt_previousTime))                                                      
         return (arr_PnL_benchmark, arr_PnL_coin)
 
 
