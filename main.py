@@ -84,6 +84,10 @@ class MultiplierCorellationCalculator:
             spamwriter = csv.writer(csvfile, delimiter=';',
                                     quotechar='|', quoting=csv.QUOTE_MINIMAL)
             spamwriter.writerow(arr_PnL_benchmark)
+        with open('%s.csv' % (coin_ccy,), 'w', newline='') as csvfile:
+            spamwriter = csv.writer(csvfile, delimiter=';',
+                                    quotechar='|', quoting=csv.QUOTE_MINIMAL)
+            spamwriter.writerow(arr_PnL_coin)
         multiplier, correlation         = self._calculate_multiplier_and_correlation(arr_PnL_benchmark,
                                                                                      arr_PnL_coin)
         return (multiplier, correlation)
