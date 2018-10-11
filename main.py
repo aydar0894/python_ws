@@ -78,6 +78,12 @@ class MultiplierCorellationCalculator:
     def calculation_for_pair(self, benchmark_ccy, coin_ccy):
         # --- read coin ---
         arr_PnL_benchmark, arr_PnL_coin = self._calculate_timeseries(benchmark_ccy, coin_ccy)
+        pprint(arr_PnL_benchmark)
+        with open('%s.csv' % (benchmark_ccy,), 'w', newline='') as csvfile:
+            spamwriter = csv.writer(csvfile, delimiter=';',
+                                    quotechar='|', quoting=csv.QUOTE_MINIMAL)
+            for row in arr_PnL_benchmark:
+                spamwriter.writerow(row)
         multiplier, correlation         = self._calculate_multiplier_and_correlation(arr_PnL_benchmark,
                                                                                      arr_PnL_coin)
         return (multiplier, correlation)
