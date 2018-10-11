@@ -62,7 +62,7 @@ class MultiplierCorellationCalculator:
         collection_data = db[self.get_collection_name()]
         minln = 0
         maxln = time.time()
-        pprint(self.currencies_list)
+        # pprint(self.currencies_list)
         for data in collection_data.find({ 'Ccy': { '$in' : self.currencies_list } }):
             try:
                 hist = data["history"]
@@ -121,7 +121,7 @@ class MultiplierCorellationCalculator:
 
         arr_PnL_benchmark  = np.array([])
         arr_PnL_coin       = np.array([])
-
+        pprint(df_benchmark)
         while (dt_currentTime <= self.end_time):
             # calculate return of benchmark in period [t-1, t]
             arr_PnL_benchmark = self._calculate_PnL(arr_PnL_benchmark,
@@ -189,7 +189,7 @@ class MultiplierCorellationCalculator:
         # this makes indexing via date faster
         df_data = df_data.set_index(['date'])         # index: string
         df_data.index = pd.to_datetime(df_data.index)
-        pprint(df_data)
+        # pprint(df_data)
         return df_data
 
 
