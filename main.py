@@ -122,7 +122,7 @@ class MultiplierCorellationCalculator:
         arr_PnL_benchmark  = np.array([])
         arr_PnL_coin       = np.array([])
         # pprint(df_benchmark)
-        pprint("Current time")
+        pprint("Current time %s" % (dt_currentTime,))
         while (dt_currentTime <= self.end_time):
             # calculate return of benchmark in period [t-1, t]
             arr_PnL_benchmark = self._calculate_PnL(arr_PnL_benchmark,
