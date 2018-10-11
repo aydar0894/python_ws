@@ -118,7 +118,7 @@ class MultiplierCorellationCalculator:
 
         df_benchmark = self._retrieve_currency_history(benchmark_ccy)
         df_coin = self._retrieve_currency_history(coin_ccy)
-
+        pprint(type(df_benchmark.loc[dt_currentTime]['close'][1]))
         arr_PnL_benchmark  = np.array([])
         arr_PnL_coin       = np.array([])
         # pprint(df_benchmark)
@@ -137,14 +137,14 @@ class MultiplierCorellationCalculator:
             # move to next timepoint
             dt_previousTime, dt_currentTime = self._increment_interval(dt_previousTime,
                                                                        dt_currentTime)
-            pprint("Current time %s  Previous time %s" % (dt_currentTime,dt_previousTime))                                                      
+                                                                  
         return (arr_PnL_benchmark, arr_PnL_coin)
 
 
     def _calculate_PnL(self, arr_PnL, df_data, dt_currentTime, dt_previousTime):
         # calculate return of strategy in period [t-1, t] (based on equity, i.e. MtM value of positions)
-        PnL = df_data.loc[dt_currentTime]['close'] / df_data.loc[dt_previousTime]['close'] -1.0
-        pprint(PnL)
+        PnL = df_data.loc[dt_currentTime]['close'][1] / df_data.loc[dt_previousTime]['close'][1] -1.0
+        
         arr_PnL = np.append(arr_PnL, PnL)
         return arr_PnL
 
