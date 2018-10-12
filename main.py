@@ -55,6 +55,9 @@ class MultiplierCorellationCalculator:
         if self.return_frequency == 'daily':
             self.start_time = self.start_time.replace(hour=0,minute=0,second=0)
             self.end_time   = self.end_time.replace(hour=0,minute=0,second=0)
+        if self.return_frequency == 'hourly':
+            self.start_time = self.start_time.replace(hour=1,minute=0,second=0)
+            self.end_time   = self.end_time.replace(hour=1,minute=0,second=0)
 
 
     def _return_time_bounds(self):
@@ -80,14 +83,14 @@ class MultiplierCorellationCalculator:
         # --- read coin ---
         arr_PnL_benchmark, arr_PnL_coin = self._calculate_timeseries(benchmark_ccy, coin_ccy)
         pprint(arr_PnL_benchmark)
-        with open('%s.csv' % (benchmark_ccy,), 'w', newline='') as csvfile:
-            spamwriter = csv.writer(csvfile, delimiter=';',
-                                    quotechar='|', quoting=csv.QUOTE_MINIMAL)
-            spamwriter.writerow(arr_PnL_benchmark)
-        with open('%s.csv' % (coin_ccy,), 'w', newline='') as csvfile:
-            spamwriter = csv.writer(csvfile, delimiter=';',
-                                    quotechar='|', quoting=csv.QUOTE_MINIMAL)
-            spamwriter.writerow(arr_PnL_coin)
+        # with open('%s.csv' % (benchmark_ccy,), 'w', newline='') as csvfile:
+        #     spamwriter = csv.writer(csvfile, delimiter=';',
+        #                             quotechar='|', quoting=csv.QUOTE_MINIMAL)
+        #     spamwriter.writerow(arr_PnL_benchmark)
+        # with open('%s.csv' % (coin_ccy,), 'w', newline='') as csvfile:
+        #     spamwriter = csv.writer(csvfile, delimiter=';',
+        #                             quotechar='|', quoting=csv.QUOTE_MINIMAL)
+        #     spamwriter.writerow(arr_PnL_coin)
         multiplier, correlation         = self._calculate_multiplier_and_correlation(arr_PnL_benchmark,
                                                                                      arr_PnL_coin)
         return (multiplier, correlation)
@@ -137,14 +140,14 @@ class MultiplierCorellationCalculator:
             # move to next timepoint
             dt_previousTime, dt_currentTime = self._increment_interval(dt_previousTime,
                                                                        dt_currentTime)
-                                                                  
+
         return (arr_PnL_benchmark, arr_PnL_coin)
 
 
     def _calculate_PnL(self, arr_PnL, df_data, dt_currentTime, dt_previousTime):
         # calculate return of strategy in period [t-1, t] (based on equity, i.e. MtM value of positions)
         PnL = df_data.loc[dt_currentTime]['close'][1] / df_data.loc[dt_previousTime]['close'][1] -1.0
-        
+
         arr_PnL = np.append(arr_PnL, PnL)
         return arr_PnL
 
