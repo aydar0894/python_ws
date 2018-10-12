@@ -121,7 +121,7 @@ class MultiplierCorellationCalculator:
 
         df_benchmark = self._retrieve_currency_history(benchmark_ccy)
         df_coin = self._retrieve_currency_history(coin_ccy)
-        pprint(type(df_benchmark.loc[dt_currentTime]['close'][1]))
+        # pprint(type(df_benchmark.loc[dt_currentTime]['close'][1]))
         arr_PnL_benchmark  = np.array([])
         arr_PnL_coin       = np.array([])
         # pprint(df_benchmark)
