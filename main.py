@@ -164,7 +164,7 @@ class MultiplierCorellationCalculator:
     def _reconstruct_currency_date(self, cur):
         frmt = "{:%Y-%m-%d}"
         if self.return_frequency == 'hourly':
-            frmt = "{:%Y-%m-%d} %H:%M:%S"
+            frmt = "{:%Y-%m-%d %H:%M:%S}"
         for cur_value, index in zip(cur['history'], range(len(cur['history']))):
             #  cur['history'][index]['date'] = datetime.fromtimestamp(cur_value['time'])
             cur['history'][index]['date'] = frmt.format(datetime.fromtimestamp(cur_value['time']))
