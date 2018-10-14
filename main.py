@@ -1,5 +1,6 @@
 from flask import Flask
 from flask import request
+from flask_cors import CORS
 import numpy as np
 import pandas as pd
 from scipy.stats.stats import pearsonr # used to calculate correlation coefficient
@@ -66,6 +67,7 @@ class MultiplierCorellationCalculator:
         minln = 0
         maxln = time.time()
         # pprint(self.currencies_list)
+        # pprint("Before for loop")
         for data in collection_data.find({ 'Ccy': { '$in' : self.currencies_list } }):
             try:
                 hist = data["history"]
@@ -76,13 +78,16 @@ class MultiplierCorellationCalculator:
                     maxln = max(history)
             except:
                 next
+        # pprint("After for loop")
+
         return (minln, maxln)
 
 
     def calculation_for_pair(self, benchmark_ccy, coin_ccy):
         # --- read coin ---
+
         arr_PnL_benchmark, arr_PnL_coin = self._calculate_timeseries(benchmark_ccy, coin_ccy)
-        pprint(arr_PnL_benchmark)
+        # pprint(arr_PnL_benchmark)
         # with open('%s.csv' % (benchmark_ccy,), 'w', newline='') as csvfile:
         #     spamwriter = csv.writer(csvfile, delimiter=';',
         #                             quotechar='|', quoting=csv.QUOTE_MINIMAL)
@@ -126,6 +131,7 @@ class MultiplierCorellationCalculator:
         arr_PnL_coin       = np.array([])
         # pprint(df_benchmark)
         # pprint("Current time %s" % (dt_currentTime,))
+        # pprint("before while loop _calculate_timeseries")
         while (dt_currentTime <= self.end_time):
             # calculate return of benchmark in period [t-1, t]
             arr_PnL_benchmark = self._calculate_PnL(arr_PnL_benchmark,
@@ -194,7 +200,8 @@ class MultiplierCorellationCalculator:
         collection = self._preprocess_collection({'Ccy': currency})
         df_data = pd.DataFrame(collection['history'])
         # this makes indexing via date faster
-        df_data = df_data.set_index(['date'])         # index: string
+        df_data = df_data.set_index(['date'])        # index: string
+
         df_data.index = pd.to_datetime(df_data.index)
         # pprint(df_data)
         return df_data
@@ -204,6 +211,7 @@ class MultiplierCorellationCalculator:
 
 
 app = Flask(__name__)
+CORS(app)
 
 @app.route('/', methods=['POST'])
 def index():
