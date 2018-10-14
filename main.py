@@ -1,6 +1,6 @@
 from flask import Flask
 from flask import request
-from flask_cors import CORS
+from flask_cors import CORS, cross_origin
 import numpy as np
 import pandas as pd
 from scipy.stats.stats import pearsonr # used to calculate correlation coefficient
@@ -214,14 +214,14 @@ app = Flask(__name__)
 CORS(app)
 
 @app.route('/', methods=['POST'])
+@cross_origin()
 def index():
     # pprint(request.form)
-    frmt = "%Y-%m-%d %H:%M:%S"
+    #frmt = "%Y-%m-%d %H:%M:%S"
     start_time = int(request.form['start_time'])
     end_time   = int(request.form['end_time'])
     currencies_list  = request.form['currencies_list'].split(',')
     return_frequency = request.form['return_frequency']
-    # pprint(currencies_list)
     if not return_frequency:
         return_frequency = 'daily'
     data = MultiplierCorellationCalculator(start_time=start_time,
