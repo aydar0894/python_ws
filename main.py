@@ -212,7 +212,7 @@ class MultiplierCorellationCalculator:
 
 app = Flask(__name__)
 CORS(app)
-
+# "origins": ('*',)
 @app.route('/', methods=['POST'])
 @cross_origin()
 def index():
