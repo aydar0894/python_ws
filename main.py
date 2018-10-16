@@ -41,7 +41,7 @@ class MultiplierCorrelationRetriever:
         return pairs_multiplier_correlation
         
     def _mongo_connect(self):
-        if not self.mongo_c: 
+        if self.mongo_c == None:
             self.mongo_c = MongoClient('localhost',
                     authSource=self.db_name)
         return self.mongo_c
