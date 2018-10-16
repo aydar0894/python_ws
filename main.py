@@ -1,6 +1,6 @@
 from flask import Flask
 from flask import request
-from flask_cors import CORS
+from flask_cors import CORS, cross_origin
 import numpy as np
 import pandas as pd
 from scipy.stats.stats import pearsonr # used to calculate correlation coefficient
@@ -20,7 +20,7 @@ class MultiplierCorrelationRetriever:
                  currencies_list='all',
                  return_frequency='daily'):
         self.mongo_c          = None
-        self.db_name          = 'darqube_db'
+        self.db_name          = 'bitcoin'
         self._mongo_connect()
         self.return_frequency = "%s_data" % return_frequency
         self.db               = self.mongo_c[self.db_name]
@@ -28,7 +28,7 @@ class MultiplierCorrelationRetriever:
         self.horizon          = horizon
         self.currencies_list  = currencies_list
         if currencies_list == 'all':
-            self.currencies_list = [[x['Ccy'] for x in self.db.find({},{'Ccy': 1, '_id': 0})]
+            self.currencies_list = [x['Ccy'] for x in self.db.find({},{'Ccy': 1, '_id': 0})]
         
         
     def retrieve_data(self):
@@ -66,14 +66,14 @@ class MultiplierCorrelationRetriever:
 
 app = Flask(__name__)
 CORS(app)
-
+# "origins": ('*',)
 @app.route('/', methods=['POST'])
+@cross_origin()
 def index():
     # pprint(request.form)
     horizon          = int(request.form['horizon'])
     currencies_list  = request.form['currencies_list'].split(',')
     return_frequency = request.form['return_frequency']
-    # pprint(currencies_list)
     if not return_frequency:
         return_frequency = 'daily'
     data = MultiplierCorrelationRetriever(horizon=horizon,
