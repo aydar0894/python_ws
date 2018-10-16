@@ -17,7 +17,7 @@ import csv
 class MultiplierCorrelationRetriever:
     def __init__(self,
                  horizon,
-                 currencies_list,
+                 currencies_list='all',
                  return_frequency='daily'):
         self.mongo_c          = None
         self.db_name          = 'darqube_db'
@@ -27,6 +27,8 @@ class MultiplierCorrelationRetriever:
         self._mongo_connect()
         self.horizon          = horizon
         self.currencies_list  = currencies_list
+        if currencies_list == 'all':
+            self.currencies_list = [[x['Ccy'] for x in self.db.find({},{'Ccy': 1, '_id': 0})]
         
         
     def retrieve_data(self):
