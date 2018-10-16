@@ -28,7 +28,7 @@ class MultiplierCorrelationRetriever:
         self.horizon          = horizon
         self.currencies_list  = currencies_list
         if currencies_list == 'all':
-            self.currencies_list = [[x['Ccy'] for x in self.db.find({},{'Ccy': 1, '_id': 0})]
+            self.currencies_list = [x['Ccy'] for x in self.db.find({},{'Ccy': 1, '_id': 0})]
         
         
     def retrieve_data(self):
