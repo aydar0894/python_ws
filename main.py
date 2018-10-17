@@ -57,7 +57,10 @@ class MultiplierCorrelationRetriever:
     
     def _retrieve_multiplier_correlation(self, benchmark, coins):
         df_data = self._retrieve_collection({'Ccy': benchmark})
-        df_data = df_data['m_and_c_matrix'][str(self.horizon)]
+        try:
+            df_data = df_data['m_and_c_matrix'][str(self.horizon)]
+        except:
+            return {}
         df_data = [x for x in df_data if x['ccy'] in coins]
         df_data = {"%s/%s" %(benchmark, obj['ccy']): {'multiplier': obj['multiplier'], 'correlation': obj['correlation']} for obj in df_data}
         return df_data
