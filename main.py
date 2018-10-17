@@ -14,22 +14,53 @@ from collections import deque
 import time
 import csv
 
+MONGODB_NAME       = 'bitcoin'
+MONGODB_HOST       = 'localhost'
+MONGODB_COLLECTIONS        = ['daily_data_test', 'hourly_data_test']
+MONGODB_DEFAULT_COLLECTION = 'daily_data_test'
+
+class MongoConnector:
+    def __init__(self,
+                host=MONGODB_HOST,
+                db_name=MONGODB_NAME):
+        self._mongo_connection = MongoClient(host=host,
+                                             authSource=db_name)
+        self.db = self._mongo_connection[db_name]
+        
+        
+    def find_one(self, 
+                filter_params,
+                collection=MONGODB_DEFAULT_COLLECTION):
+        collection = self.db[collection]
+        if not collection:
+            raise Exception('collection not found')
+        return collection.find_one(filter_params)
+
+    def find(self, 
+             filter_params, 
+             colleciton=MONGODB_DEFAULT_COLLECTION):
+        return self.db[colleciton].find({},filter_params)
+    
+    def get_db(self):
+        return self.db
+        
+
 class MultiplierCorrelationRetriever:
     def __init__(self,
                  horizon,
                  currencies_list=['all'],
                  return_frequency='daily',
                  db_name='bitcoin_test'):
-        self.mongo_c          = None
-        self.db_name          = db_name
-        self._mongo_connect()
+        self.db               = MongoConnector(host=MONGODB_HOST,
+                                               db_name=db_name)
         self.return_frequency = "%s_data" % return_frequency
-        self.db               = self.mongo_c[self.db_name]
-        self._mongo_connect()
         self.horizon          = horizon
         self.currencies_list  = currencies_list
         if currencies_list == ['all']:
-            self.currencies_list = [x['Ccy'] for x in self.db[self.return_frequency].find({},{'Ccy': 1, '_id': 0}).limit(50)]
+            filter_params         = {'Ccy': 1, '_id': 0}
+            currencies_collection = self.db.find(filter_params,
+                                                 self.return_frequency).limit(50)
+            self.currencies_list  = [x['Ccy'] for x in currencies_collection]
         
         
     def retrieve_data(self):
@@ -40,23 +71,10 @@ class MultiplierCorrelationRetriever:
             pair = self._retrieve_multiplier_correlation(benchmark_currency, currencies_list)
             pairs_multiplier_correlation = {**pairs_multiplier_correlation, **pair}
         return pairs_multiplier_correlation
-        
-    def _mongo_connect(self):
-        if self.mongo_c == None:
-            self.mongo_c = MongoClient('localhost',
-                    authSource=self.db_name)
-        return self.mongo_c
-        
-        
-    def _retrieve_collection(self, filter_params):
-        collection = self.db[self.return_frequency]
-        if not collection:
-            raise Exception('collection not found')
-        return collection.find_one(filter_params)
 
     
     def _retrieve_multiplier_correlation(self, benchmark, coins):
-        df_data = self._retrieve_collection({'Ccy': benchmark})
+        df_data = self.db.find_one({'Ccy': benchmark},self.return_frequency)
         try:
             df_data = df_data['m_and_c_matrix'][str(self.horizon)]
         except:
@@ -66,19 +84,28 @@ class MultiplierCorrelationRetriever:
         return df_data
 
 
+class CurrenciesListRetriver:
+    def __init__(self,
+             host=MONGODB_HOST,
+             db_name=MONGODB_NAME,
+             collection=MONGODB_DEFAULT_COLLECTION):
+        self.connector  = MongoConnector(host=host,
+                                         db_name=db_name)
+
+    def call(self, filter_params):
+        return [x['Ccy'] for x in self.connector.find(filter_params)]
 
 
 app = Flask(__name__)
 CORS(app)
 # "origins": ('*',)
-@app.route('/', methods=['POST'])
+@app.route('/matrix', methods=['POST'])
 @cross_origin()
-def index():
+def matrix():
     # pprint(request.form)
     horizon          = int(request.form['horizon'])
     currencies_list  = request.form['currencies_list'].split(',')
     return_frequency = request.form['return_frequency']
-    db_name          = 'bitcoin_test'
     print(horizon)
     print(currencies_list)
     print(return_frequency)
@@ -88,8 +115,22 @@ def index():
     data = MultiplierCorrelationRetriever(horizon=horizon,
                                     currencies_list=currencies_list,
                                     return_frequency=return_frequency,
-                                    db_name=db_name
+                                    db_name=MONGODB_NAME
                                     ).retrieve_data()
+    response = app.response_class(
+        response=json.dumps(data),
+        status=200,
+        mimetype='application/json'
+    )
+    return response
+
+# "origins": ('*',)
+@app.route('/currencies', methods=['GET'])
+@cross_origin()
+def currencies():
+    filter_params   = {'Ccy': 1, '_id': 0}
+    connector       = CurrenciesListRetriver()
+    data            = list(connector.call(filter_params))
     response = app.response_class(
         response=json.dumps(data),
         status=200,
