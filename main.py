@@ -82,7 +82,8 @@ def index():
     print(horizon)
     print(currencies_list)
     print(return_frequency)
-    if not return_frequency:
+    p_frequency = ['dayily', 'hourly']
+    if return_frequency not in p_frequency:
         return_frequency = 'daily'
     data = MultiplierCorrelationRetriever(horizon=horizon,
                                     currencies_list=currencies_list,
