@@ -39,7 +39,10 @@ class MongoConnector:
     def find(self, 
              filter_params, 
              colleciton=MONGODB_DEFAULT_COLLECTION):
-        return self.db[colleciton].find({},filter_params)
+        collection = self.db[colleciton]
+        if not collection:
+            raise Exception('collection not found')
+        return collection.find({},filter_params)
     
     def get_db(self):
         return self.db
@@ -50,16 +53,17 @@ class MultiplierCorrelationRetriever:
                  horizon,
                  currencies_list=['all'],
                  return_frequency='daily',
-                 db_name='bitcoin_test'):
-        self.db               = MongoConnector(host=MONGODB_HOST,
+                 db_name=MONGODB_NAME):
+        self.connector        = MongoConnector(host=MONGODB_HOST,
                                                db_name=db_name)
-        self.return_frequency = "%s_data" % return_frequency
+        self.return_frequency = "%s_data_test" % return_frequency
         self.horizon          = horizon
         self.currencies_list  = currencies_list
         if currencies_list == ['all']:
             filter_params         = {'Ccy': 1, '_id': 0}
-            currencies_collection = self.db.find(filter_params,
-                                                 self.return_frequency).limit(50)
+            currencies_collection = self.connector.find(filter_params,
+                                                        self.return_frequency
+                                                        ).limit(50)
             self.currencies_list  = [x['Ccy'] for x in currencies_collection]
         
         
@@ -74,7 +78,8 @@ class MultiplierCorrelationRetriever:
 
     
     def _retrieve_multiplier_correlation(self, benchmark, coins):
-        df_data = self.db.find_one({'Ccy': benchmark},self.return_frequency)
+        df_data = self.connector.find_one({'Ccy': benchmark}, 
+                                          self.return_frequency)
         try:
             df_data = df_data['m_and_c_matrix'][str(self.horizon)]
         except:
