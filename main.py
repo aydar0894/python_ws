@@ -18,9 +18,10 @@ class MultiplierCorrelationRetriever:
     def __init__(self,
                  horizon,
                  currencies_list='all',
-                 return_frequency='daily'):
+                 return_frequency='daily',
+                 db_name='bitcoin_test'):
         self.mongo_c          = None
-        self.db_name          = 'bitcoin'
+        self.db_name          = db_name
         self._mongo_connect()
         self.return_frequency = "%s_data" % return_frequency
         self.db               = self.mongo_c[self.db_name]
@@ -74,11 +75,13 @@ def index():
     horizon          = int(request.form['horizon'])
     currencies_list  = request.form['currencies_list'].split(',')
     return_frequency = request.form['return_frequency']
+    db_name          = 'bitcoin_test'
     if not return_frequency:
         return_frequency = 'daily'
     data = MultiplierCorrelationRetriever(horizon=horizon,
                                     currencies_list=currencies_list,
-                                    return_frequency=return_frequency
+                                    return_frequency=return_frequency,
+                                    db_name=db_name
                                     ).retrieve_data()
     response = app.response_class(
         response=json.dumps(data),
