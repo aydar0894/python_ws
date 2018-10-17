@@ -75,7 +75,7 @@ def index():
     horizon          = int(request.form['horizon'])
     currencies_list  = request.form['currencies_list'].split(',')
     return_frequency = request.form['return_frequency']
-    db_name          = 'bitcoin_test'
+    db_name          = 'bitcoin'
     if not return_frequency:
         return_frequency = 'daily'
     data = MultiplierCorrelationRetriever(horizon=horizon,
