@@ -29,7 +29,7 @@ class MultiplierCorrelationRetriever:
         self.horizon          = horizon
         self.currencies_list  = currencies_list
         if currencies_list == ['all']:
-            self.currencies_list = [x['Ccy'] for x in self.db[self.return_frequency].find({},{'Ccy': 1, '_id': 0})]
+            self.currencies_list = [x['Ccy'] for x in self.db[self.return_frequency].find({},{'Ccy': 1, '_id': 0}).limit(50)]
         
         
     def retrieve_data(self):
@@ -78,7 +78,7 @@ def index():
     horizon          = int(request.form['horizon'])
     currencies_list  = request.form['currencies_list'].split(',')
     return_frequency = request.form['return_frequency']
-    db_name          = 'bitcoin'
+    db_name          = 'bitcoin_test'
     print(horizon)
     print(currencies_list)
     print(return_frequency)
