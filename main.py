@@ -67,7 +67,7 @@ class MultiplierCorrelationRetriever:
             self.currencies_list  = [x['Ccy'] for x in currencies_collection]
         
         
-    def retrieve_data(self):
+    def retrieve_all_pairs(self):
         currencies_list  = deque(self.currencies_list)
         pairs_multiplier_correlation = {}
         while len(currencies_list) > 1:
@@ -75,6 +75,10 @@ class MultiplierCorrelationRetriever:
             pair = self._retrieve_multiplier_correlation(benchmark_currency, currencies_list)
             pairs_multiplier_correlation = {**pairs_multiplier_correlation, **pair}
         return pairs_multiplier_correlation
+
+    def retrieve_pairs_for_benchmark(self, benchmark_currency):
+        return self._retrieve_multiplier_correlation(benchmark_currency,
+                                                     self.currencies_list)
 
     
     def _retrieve_multiplier_correlation(self, benchmark, coins):
@@ -121,7 +125,7 @@ def matrix():
                                     currencies_list=currencies_list,
                                     return_frequency=return_frequency,
                                     db_name=MONGODB_NAME
-                                    ).retrieve_data()
+                                    ).retrieve_all_pairs()
     response = app.response_class(
         response=json.dumps(data),
         status=200,
@@ -142,3 +146,28 @@ def currencies():
         mimetype='application/json'
     )
     return response
+
+
+# TODO: create api selected selected benchmark pairs
+
+# will callculate pairs benchmark and list of given coins
+
+@app.route('/currency_pairs', methods=['GET'])
+@cross_origin()
+def currency_pairs():
+    benchmark        = request.form['benchmark']
+    horizon          = int(request.form['horizon'])
+    currencies_list  = request.form['currencies_list'].split(',')
+    return_frequency = request.form['return_frequency']
+    data             = MultiplierCorrelationRetriever(horizon=horizon,
+                                    currencies_list=currencies_list,
+                                    return_frequency=return_frequency,
+                                    db_name=MONGODB_NAME
+                                    ).retrieve_pairs_for_benchmark(benchmark)
+    response = app.response_class(
+        response=json.dumps(data),
+        status=200,
+        mimetype='application/json'
+    )
+    return response
+
