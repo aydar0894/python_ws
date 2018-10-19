@@ -106,7 +106,7 @@ class MultiplierCorrelationCalculator:
         for data in self.connector.find(*params):
             da_data = [history['close'] for history in list(reversed(data['history']))[1:self.horizon]]
             df_prices.append(da_data)
-        df_prices = pd.DataFrame(list(zip(*df_prices)), column s=self.currencies_list)
+        df_prices = pd.DataFrame(list(zip(*df_prices)), columns=self.currencies_list)
         df_returns=df_prices / df_prices.shift(1) - 1
         df_correl=df_returns.corr()
         corel = pd.DataFrame.to_dict(df_correl)
