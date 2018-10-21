@@ -162,7 +162,7 @@ def currencies():
     connector  = MongoClient(host=MONGO_HOST,
                              authSource='hourly_data')
     collection = connector['hourly_data'][MONGO_DB_DEFAULT_COLLECTION]
-    data       = { x['Ccy']: x['rank'] for x in collection.find(*selected_params)} 
+    data       =  [x['Ccy'] for x in collection.find(*selected_params)]
     response = app.response_class(
         response=json.dumps(data),
         status=200,
