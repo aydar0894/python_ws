@@ -161,7 +161,7 @@ def currencies():
     selected_params   = {}, {'Ccy': 1, 'rank': 1, '_id': 0}
     connector  = MongoClient(host=MONGO_HOST,
                              authSource='hourly_data')
-    collection = connector[MONGO_DB_NAME][MONGO_DB_DEFAULT_COLLECTION]
+    collection = connector['hourly_data'][MONGO_DB_DEFAULT_COLLECTION]
     data       = { x['Ccy']: x['rank'] for x in collection.find(*selected_params)} 
     response = app.response_class(
         response=json.dumps(data),
