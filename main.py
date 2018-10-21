@@ -16,8 +16,8 @@ import csv
 
 MONGO_DB_NAME       = 'bitcoin'
 MONGO_HOST       = 'localhost'
-MONGO_COLLECTIONS        = ['daily_data_test', 'hourly_data_test']
-MONGO_DB_DEFAULT_COLLECTION = 'daily_data_test'
+MONGO_COLLECTIONS        = ['daily_data', 'hourly_data']
+MONGO_DB_DEFAULT_COLLECTION = 'daily_data'
 
 class RequestFrequency(Enum):
     DAILY  = 0
