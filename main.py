@@ -15,7 +15,7 @@ import time
 import csv
 
 MONGO_DB_NAME       = 'bitcoin'
-MONGO_HOST       = 'localhost'
+MONGO_HOST          = 'localhost'
 MONGO_COLLECTION_SUFFIX  = 'data'
 MONGO_COLLECTIONS        = ['daily_data', 'hourly_data']
 MONGO_DB_DEFAULT_COLLECTION = 'daily_data'
@@ -162,7 +162,7 @@ def currencies():
     connector  = MongoClient(host=MONGO_HOST,
                              authSource=MONGO_DB_NAME)
     collection = connector[MONGO_DB_NAME]['hourly_data']
-    data       = { x['Ccy']: x['rank'] for x in collection.find(*selected_params)} 
+    data       = { x['Ccy'] : x['rank'] for x in collection.find(*selected_params)} 
     response = app.response_class(
         response=json.dumps(data),
         status=200,
