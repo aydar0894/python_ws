@@ -158,11 +158,11 @@ def matrix():
 @app.route('/currencies', methods=['GET'])
 @cross_origin()
 def currencies():
-    selected_params   = {}, {'Ccy': 1, '_id': 0}
+    selected_params   = {}, {'Ccy': 1, 'rank': 1, '_id': 0}
     connector  = MongoClient(host=MONGO_HOST,
-                             authSource=MONGO_DB_NAME)
+                             authSource='hourly_data')
     collection = connector[MONGO_DB_NAME][MONGO_DB_DEFAULT_COLLECTION]
-    data       = list([x['Ccy'] for x in collection.find(*selected_params)])
+    data       = { x['Ccy']: x['rank'] for x in collection.find(*selected_params)} 
     response = app.response_class(
         response=json.dumps(data),
         status=200,
