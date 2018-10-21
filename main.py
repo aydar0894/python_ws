@@ -16,6 +16,7 @@ import csv
 
 MONGO_DB_NAME       = 'bitcoin'
 MONGO_HOST       = 'localhost'
+MONGO_COLLECTION_SUFFIX  = 'data'
 MONGO_COLLECTIONS        = ['daily_data', 'hourly_data']
 MONGO_DB_DEFAULT_COLLECTION = 'daily_data'
 
@@ -90,7 +91,7 @@ class MultiplierCorrelationCalculator:
             raise Exception(msg)
         bounds_normalizer     = self.TIME_INTERVALS_CALCULATOR[return_frequency]
         self.horizon          = bounds_normalizer(horizon)
-        self.collection       = "%s_data_test" % return_frequency
+        self.collection       = "%s_%s" % (return_frequency, MONGO_COLLECTION_SUFFIX)
         mongo_c               = MongoClient(host=MONGO_HOST,
                                             authSource=db_name)
         self.connector        = mongo_c[db_name][self.collection]
