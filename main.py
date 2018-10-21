@@ -160,9 +160,9 @@ def matrix():
 def currencies():
     selected_params   = {}, {'Ccy': 1, 'rank': 1, '_id': 0}
     connector  = MongoClient(host=MONGO_HOST,
-                             authSource='hourly_data')
-    collection = connector['hourly_data'][MONGO_DB_DEFAULT_COLLECTION]
-    data       =  [x['Ccy'] for x in collection.find(*selected_params)]
+                             authSource=MONGO_DB_NAME)
+    collection = connector[MONGO_DB_NAME]['hourly_data']
+    data       = { x['Ccy']: x['rank'] for x in collection.find(*selected_params)} 
     response = app.response_class(
         response=json.dumps(data),
         status=200,
