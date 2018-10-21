@@ -110,10 +110,13 @@ class MultiplierCorrelationCalculator:
         df_prices = pd.DataFrame(list(zip(*df_prices)), columns=self.currencies_list)
         df_returns=df_prices / df_prices.shift(1) - 1
         df_correl=df_returns.corr()
-        corel = pd.DataFrame.to_dict(df_correl)
+        correl = pd.DataFrame.to_dict(df_correl)
         df_beta=df_returns.cov()/df_returns.var()
         beta = pd.DataFrame.to_dict(df_beta)
-        return {'multiplier': beta, 'correlation': corel }
+        correl = {key: {k: 0 if v != v else v for k,v in value.items()} for key, value in correl.items() }
+        beta   = {key: {k: 0 if v != v else v for k,v in value.items()} for key, value in beta.items() }
+
+        return {'multiplier': beta, 'correlation': correl }
     
     # def calculate_pairs_for_benchmark(self,  benchmark, coins):
     #     df_data = self.connector.find_one({'Ccy': benchmark})
