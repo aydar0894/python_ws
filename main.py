@@ -16,7 +16,7 @@ import csv
 
 MONGO_DB_NAME       = 'bitcoin'
 MONGO_HOST          = 'localhost'
-MONGO_COLLECTION_SUFFIX  = 'data'
+MONGO_COLLECTION_SUFFIX  = 'data_test'
 MONGO_COLLECTIONS        = ['daily_data', 'hourly_data']
 MONGO_DB_DEFAULT_COLLECTION = 'daily_data'
 
@@ -105,7 +105,7 @@ class MultiplierCorrelationCalculator:
         df_prices = []
         params    = {'Ccy': {'$in': self.currencies_list}}, {'history.close': 1, 'Ccy': 1}
         for data in self.connector.find(*params):
-            da_data = [history['close'] for history in list(reversed(data['history']))[1:self.horizon]]
+            da_data = [history['close'] for history in list(data['history'])[1:self.horizon]]
             df_prices.append(da_data)
         df_prices = pd.DataFrame(list(zip(*df_prices)), columns=self.currencies_list)
         df_returns=df_prices / df_prices.shift(1) - 1
@@ -164,7 +164,7 @@ def currencies():
     selected_params   = {}, {'Ccy': 1, 'rank': 1, '_id': 0}
     connector  = MongoClient(host=MONGO_HOST,
                              authSource=MONGO_DB_NAME)
-    collection = connector[MONGO_DB_NAME]['hourly_data']
+    collection = connector[MONGO_DB_NAME]['%s_%s' % ('hourly', MONGO_COLLECTION_SUFFIX)]
     data = {}
     for x in collection.find(*selected_params):
         ccy = x['Ccy']
