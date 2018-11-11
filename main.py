@@ -181,6 +181,9 @@ def currencies():
     return response
 
 
+if __name__ == '__main__':
+    app.run(host='0.0.0.0', port=5000, debug=True)
+
 # TODO: create api selected selected benchmark pairs
 
 # will callculate pairs benchmark and list of given coins
