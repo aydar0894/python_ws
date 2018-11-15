@@ -1,12 +1,12 @@
 version: '3'
 services:
   matrix_api:
-    image: registry.gitlab.com/darqubie/backtester_api/python3-matrix:latest
+    image: registry.gitlab.com/darqubie/shared_registry/python3-matrix:latest
     ports:
       - 5000:5000
     environment:
       - FLASK_ENV=production
-      - FLASK_PORT=5005
+      - FLASK_PORT=5000
       - FLASK_APP=main.py
     command: python3 /app/main.py
     restart: unless-stopped
