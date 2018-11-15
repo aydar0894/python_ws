@@ -15,7 +15,7 @@ import time
 import csv
 
 MONGO_DB_NAME       = 'bitcoin'
-MONGO_HOST          = 'localhost'
+MONGO_HOST          = '92.38.140.28'
 MONGO_COLLECTION_SUFFIX  = 'data_test'
 MONGO_COLLECTIONS        = ['daily_data', 'hourly_data']
 MONGO_DB_DEFAULT_COLLECTION = 'daily_data'

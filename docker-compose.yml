@@ -1,6 +1,6 @@
 version: '3'
 services:
-  backtester_api:
+  matrix_api:
     image: registry.gitlab.com/darqubie/backtester_api/python3-matrix:latest
     ports:
       - 5000:5000
