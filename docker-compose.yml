@@ -10,4 +10,11 @@ services:
       - FLASK_APP=main.py
     command: python3 /app/main.py
     restart: unless-stopped
+    networks:
+      - mynet
+
+networks:
+  default:
+    external:
+      name: mynet
 
