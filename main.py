@@ -15,8 +15,8 @@ import time
 import csv
 
 MONGO_DB_NAME       = 'bitcoin'
-MONGO_HOST          = '92.38.140.28'
-MONGO_COLLECTION_SUFFIX  = 'data_test'
+MONGO_HOST          = 'localhost'
+MONGO_COLLECTION_SUFFIX  = 'data'
 MONGO_COLLECTIONS        = ['daily_data', 'hourly_data']
 MONGO_DB_DEFAULT_COLLECTION = 'daily_data'
 
@@ -132,8 +132,8 @@ class MultiplierCorrelationCalculator:
 app = Flask(__name__)
 CORS(app)
 # "origins": ('*',)
-@app.route('/matrix', methods=['POST'])
-@cross_origin()
+@app.route('/list', methods=['POST'])
+@cross_origin(origins=('*',))
 def matrix():
     # pprint(request.form)
     horizon          = int(request.form['horizon'])
@@ -158,8 +158,8 @@ def matrix():
     return response
 
 # "origins": ('*',)
-@app.route('/currencies', methods=['GET'])
-@cross_origin()
+@app.route('/matrix/currencies', methods=['GET'])
+@cross_origin(origings=('*',))
 def currencies():
     selected_params   = {}, {'Ccy': 1, 'rank': 1, '_id': 0}
     connector  = MongoClient(host=MONGO_HOST,

@@ -1,0 +1,14 @@
+
+[Unit]
+Description=uWSGI instance to serve matrix on flask
+After=network.target
+
+[Service]
+User=darqoin
+Group=www-data
+WorkingDirectory=/home/darqoin/apps/flask_corelation_multiplier/python_ws
+Environment="PATH=home/darqoin/apps/flask_corelation_multiplier/python_ws/pythonws_venv/bin"
+ExecStart=/home/darqoin/apps/flask_corelation_multiplier/python_ws/pythonws_venv/bin/uwsgi --ini project.ini
+
+[Install]
+WantedBy=multi-user.target
