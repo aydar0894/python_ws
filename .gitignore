@@ -1,4 +1,5 @@
-__pycache__
+pythonws_venv/*
+__pycache__/*
 /*.csv
 /*.json
 /*.err*
